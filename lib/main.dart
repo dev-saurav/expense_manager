@@ -1,3 +1,4 @@
+import 'package:expanse_manager/widgets/Chart.dart';
 import 'package:expanse_manager/widgets/transaction_list.dart';
 
 import './widgets/new_transaction.dart';
@@ -11,7 +12,24 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter App',
+      title: 'Personal Expenses',
+      theme: ThemeData(
+          primarySwatch: Colors.purple,
+          accentColor: Colors.amber,
+          fontFamily: "Quicksand",
+          textTheme: ThemeData.light().textTheme.copyWith(
+                  title: TextStyle(
+                fontFamily: "OpenSans",
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+              )),
+          appBarTheme: AppBarTheme(
+            textTheme: ThemeData.light().textTheme.copyWith(
+                    title: TextStyle(
+                  fontFamily: "OpenSans",
+                  fontSize: 20,
+                )),
+          )),
       home: MyHomePage(),
     );
   }
@@ -24,13 +42,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final List<Transaction> _transactions = [
-    Transaction(
-      id: "item1",
-      title: "shoes",
-      amount: 2000,
-      date: DateTime.now(),
-    ),
+    // Transaction(
+    //   id: "item1",
+    //   title: "shoes",
+    //   amount: 2000,
+    //   date: DateTime.now(),
+    // ),
   ];
+
+  List<Transaction> get _recentTransactions {
+    return _transactions.where((tx) {
+      return tx.date.isAfter(DateTime.now().subtract(Duration(days: 7)));
+    }).toList();
+  }
 
   void addTransaction(String title, String amount) {
     var rng = new Random();
@@ -45,12 +69,16 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  void startAddNewTransaction(BuildContext ctx) {
+  void _startAddNewTransaction(BuildContext ctx) {
     showModalBottomSheet(
         context: ctx,
         builder: (_) {
-          return NewTransaction(
-            addTx: addTransaction,
+          return GestureDetector(
+            onTap: () {},
+            child: NewTransaction(
+              addTx: addTransaction,
+            ),
+            behavior: HitTestBehavior.opaque,
           );
         });
   }
@@ -59,11 +87,13 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Flutter App'),
+        title: Text(
+          'Flutter App',
+        ),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () => startAddNewTransaction(context),
+            onPressed: () => _startAddNewTransaction(context),
           )
         ],
       ),
@@ -71,12 +101,8 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Container(
-              width: double.infinity,
-              child: Card(
-                color: Colors.blue,
-                child: Text("chart"),
-              ),
+            Chart(
+              transactionList: _recentTransactions,
             ),
             TransactionList(
               transactions: _transactions,
@@ -88,7 +114,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Icon(
           Icons.add,
         ),
-        onPressed: () => startAddNewTransaction(context),
+        onPressed: () => _startAddNewTransaction(context),
       ),
     );
   }
