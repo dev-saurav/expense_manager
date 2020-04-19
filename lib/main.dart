@@ -25,10 +25,12 @@ class MyApp extends StatelessWidget {
               )),
           appBarTheme: AppBarTheme(
             textTheme: ThemeData.light().textTheme.copyWith(
-                    title: TextStyle(
-                  fontFamily: "OpenSans",
-                  fontSize: 20,
-                )),
+                  title: TextStyle(
+                    fontFamily: "OpenSans",
+                    fontSize: 20,
+                  ),
+                  button: TextStyle(color: Colors.white),
+                ),
           )),
       home: MyHomePage(),
     );
@@ -41,14 +43,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  final List<Transaction> _transactions = [
-    // Transaction(
-    //   id: "item1",
-    //   title: "shoes",
-    //   amount: 2000,
-    //   date: DateTime.now(),
-    // ),
-  ];
+  final List<Transaction> _transactions = [];
 
   List<Transaction> get _recentTransactions {
     return _transactions.where((tx) {
@@ -56,16 +51,24 @@ class _MyHomePageState extends State<MyHomePage> {
     }).toList();
   }
 
-  void addTransaction(String title, String amount) {
+  void addTransaction(String title, String amount, DateTime chosenDate) {
     var rng = new Random();
     Transaction newTx = Transaction(
       id: rng.nextInt(10000).toString(),
       title: title,
       amount: double.parse(amount),
-      date: DateTime.now(),
+      date: chosenDate,
     );
     setState(() {
       _transactions.add(newTx);
+    });
+  }
+
+  void deleteTransaction(String id) {
+    setState(() {
+      _transactions.removeWhere((tx) {
+        return tx.id == id;
+      });
     });
   }
 
@@ -106,6 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             TransactionList(
               transactions: _transactions,
+              deleteTx: deleteTransaction,
             ),
           ],
         ),
